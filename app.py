@@ -114,7 +114,7 @@ def update_college():
 
 
 axes = {'par_median' : 'Median Income of Parents at Admission (adjusted)',
-        'k_median' : 'Median Income of Child at Age ~33',
+        'k_median' : 'Median Income of Child ~10 years After Graduation (adjusted)',
         'par_q1' : 'Fraction of Parents with Bottom 20% Income',
         'par_top1pc' : 'Fraction of Parents with Top 1% Income',
         'mr_kq5_pq1' : 'Mobility Rate 20% (Parent Bottom 20% -> Child Top 20% Income)',
@@ -174,14 +174,14 @@ with tab1:
     st.write(f"The {app_name} is a tool for exploring colleges in the United States.")
     st.write("It allows you to filter colleges by various criteria and visualize the results.")
     st.write("Specifically, it allows you to:")
-    st.markdown("* ***Filter*** colleges based on the selected criteria (e.g. SAT scores, tuition, median income at age ~33))")
+    st.markdown("* ***Filter*** colleges based on the selected criteria (e.g. SAT scores, tuition, median income))")
     st.markdown("* ***Visualize*** the filtered colleges in interactive charts")
     st.markdown("* Provide ***detailed*** information on the specific college selected")
     st.markdown("* Display a ***table*** containing full information of the filtered colleges")
     st.markdown("#### Overview of the College Mobility Data")
     st.markdown("* This data track the income of students and their parents focusing on ***1980-1982 birth cohorts***")
-    st.markdown("* Parental income is measured by the income of the parents at the time of the student's admission to college.")
-    st.markdown("* Child income is measured by the income of the student at age ~33.")
+    st.markdown("* Parental income is obtained based on the income of the parents at the time of the student's admission to college.")
+    st.markdown("* Child income is obtained based on the income of the student ~10 years after graduation.")
     st.markdown("* Mobility rate is the fraction of students who move from the bottom 20% of parental income to the top 20% (or 1%) of child income.")
     st.markdown("* When year is not specified, it usually refers to the cohort of early 2000s.")
     st.markdown("* Please visit [Opportunity Insights Web Page](https://opportunityinsights.org/paper/mobilityreportcards/) for more information")
@@ -272,11 +272,32 @@ with tab4:
     st.write("\n")
     st.markdown(f"#### You selected : {st.session_state.select_college}")
     st.markdown(f"##### Basic Information of {st.session_state.select_college}")
-    st.markdown(f"* A {st.session_state.selected_row['tier_name'].lower()} college")
-    st.markdown(f"* Located in {st.session_state.selected_row['czname']}, {st.session_state.selected_row['state']}")
-    st.markdown(f"* Offers a {st.session_state.selected_row['iclevel']} program.")
-    st.markdown(f"##### Selectivity of {st.session_state.select_college} is {st.session_state.selected_row['barrons']}")
-    st.markdown(f"##### Tuitions and fees of {st.session_state.select_college} is ${st.session_state.selected_row['sticker_price_2013']}")
+    st.markdown(f"* A ***{st.session_state.selected_row['tier_name'].lower()}*** college")
+    st.markdown(f"* Located in ***{st.session_state.selected_row['czname']}, {st.session_state.selected_row['state']}***")
+    st.markdown(f"* Offers a ***{st.session_state.selected_row['iclevel']}*** program.")
+    st.markdown(f"* The size of student cohort is ***{st.session_state.selected_row['count']:.0f}*** per year.")
+    st.markdown(f"##### Selectivity of {st.session_state.select_college}")
+    st.markdown(f"* The Barron's selectivity index is ***{st.session_state.selected_row['barrons']}***")
+    st.markdown(f"* The tier of the college is classified as ***{st.session_state.selected_row['tier_name']}***")
+    sat_avg_str = "unavailable" if st.session_state.selected_row['sat_avg_2013'] == 0 else f"{st.session_state.selected_row['sat_avg_2013']:.0f} ( {st.session_state.selected_pct['sat_avg_2013']:.1f} percentile )"
+    st.markdown(f"* The average SAT score (in 2013) is ***{sat_avg_str}***")
+    st.markdown(f"* The acceptance rate (in 2013) is ***{100 - 100*st.session_state.selected_row['scorecard_rej_rate_2013']:.1f}% ( {100-st.session_state.selected_pct['scorecard_rej_rate_2013']:.1f} percentile )***.")
+    st.markdown(f"##### Financial Aspects of {st.session_state.select_college}")
+    st.markdown(f"* The tuitions and fees (in 2013) is ***${st.session_state.selected_row['sticker_price_2013']:,.0f} ( {st.session_state.selected_pct['sticker_price_2013']:.1f} percentile )***.")
+    st.markdown(f"* The median parent household income is ***${st.session_state.selected_row['par_median']:,.0f} ( {st.session_state.selected_pct['par_median']:.1f} percentile )***.")
+    st.markdown(f"* About ***{st.session_state.selected_row['par_top1pc']:,.1f}% ( {st.session_state.selected_pct['par_top1pc']:.1f} percentile )*** are from households with top 1% income.")
+    grad_rate_str = "unavailable" if st.session_state.selected_row['grad_rate_150_p_2013'] == 0 else f"{100*st.session_state.selected_row['grad_rate_150_p_2013']:.1f}% ( {st.session_state.selected_pct['grad_rate_150_p_2013']:.1f} percentile )"
+    st.markdown(f"* Graduation rate (within 6 years) is ***{grad_rate_str}***.")
+    st.markdown(f"##### Demographic Distribution of {st.session_state.select_college}")
+    st.markdown(f"* About ***{100*st.session_state.selected_row['asian_or_pacific_share_fall_2000']:,.1f}% ( {st.session_state.selected_pct['asian_or_pacific_share_fall_2000']:.1f} percentile )*** of students are Asian or Pacific Islander (in 2000).")
+    st.markdown(f"* About ***{100*st.session_state.selected_row['black_share_fall_2000']:,.1f}% ( {st.session_state.selected_pct['black_share_fall_2000']:.1f} percentile )*** of students are Black (in 2000).")
+    st.markdown(f"* About ***{100*st.session_state.selected_row['hisp_share_fall_2000']:,.1f}% ( {st.session_state.selected_pct['hisp_share_fall_2000']:.1f} percentile )*** of students are Hispanic (in 2000).")
+    st.markdown(f"* About ***{100*st.session_state.selected_row['alien_share_fall_2000']:,.1f}% ( {st.session_state.selected_pct['alien_share_fall_2000']:.1f} percentile )*** of students are Non-resident alien (in 2000).")
+    st.markdown(f"##### ~10 Years After Graduating {st.session_state.select_college}...")
+    st.markdown(f"* Their median income is ***${st.session_state.selected_row['k_median']:,.0f} ( {st.session_state.selected_pct['k_median']:.1f} percentile )***.")
+    st.markdown(f"* About ***{100*st.session_state.selected_row['k_married']:,.1f}% ( {st.session_state.selected_pct['k_married']:.1f} percentile )*** are married.")
+    st.markdown(f"* About ***{st.session_state.selected_row['mr_kq5_pq1']:,.1f}% ( {st.session_state.selected_pct['mr_kq5_pq1']:.1f} percentile )*** of students who have parents in the Bottom 20% of the income distribution and reach the Top 20% of the income distribution (called Mobility Rate).")
+
 
 with tab5:
     st.markdown(f"#### Currently, {st.session_state.df_filt.shape[0]} colleges are selected.")
